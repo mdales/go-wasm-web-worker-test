@@ -13,13 +13,13 @@ WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(
 		console.error("Worker failed to load WASM module: ", err)
 	});
 
-const drawAndPaint = (canvasImageData) => {
-	console.log(exports);
 
-	console.log("a");
-	// Generate a new checkboard in wasm
-	exports.draw();
+const GRIDIWDTH = 4;
+const GRIDHEIGHT = 3;
 
+const drawAndPaint = (x, y, canvasImageData) => {
+
+	exports.draw(x, y, GRIDIWDTH, GRIDHEIGHT);
 
 	const memory = exports.mem; // was exports.memory
 	const wasmByteMemoryArray = new Uint8Array(memory.buffer);
@@ -43,8 +43,9 @@ onmessage = ({ data }) => {
 	});
 	switch (action) {
 		case "draw":
-			drawAndPaint(payload);
-			postMessage({ action: "result", payload: payload });
+			let { x, y, buffer} = payload;
+			drawAndPaint(x, y, buffer);
+			postMessage({ action: "result", payload: buffer });
 			break;
 		default:
 			throw (`unknown action '${action}'`);
