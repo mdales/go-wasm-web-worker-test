@@ -4,9 +4,25 @@
 		<title>Fractal WASM demo</title>
 		<script src="./wasm_exec.js"></script>
 		<script type="module" src="./index.js"></script>
+		<style>
+			#container {
+				display: grid;
+				grid-template-columns: 256px 256px 256px;
+			}
+		</style>
 	</head>
 	<body>
 		<h1>Boo</h1>
-		<canvas id="canvas" width="256px" height="256px"></canvas>
+		<div id="container">
+			<canvas id="canvas0" width="256px" height="256px"></canvas>
+			<canvas id="canvas1" width="256px" height="256px"></canvas>
+			<canvas id="canvas2" width="256px" height="256px"></canvas>
+			<canvas id="canvas3" width="256px" height="256px"></canvas>
+			<canvas id="canvas4" width="256px" height="256px"></canvas>
+			<canvas id="canvas5" width="256px" height="256px"></canvas>
+			<canvas id="canvas6" width="256px" height="256px"></canvas>
+			<canvas id="canvas7" width="256px" height="256px"></canvas>
+			<canvas id="canvas8" width="256px" height="256px"></canvas>
+		</div>
 	</body>
 </html>

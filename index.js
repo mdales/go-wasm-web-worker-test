@@ -1,65 +1,59 @@
 const go = new Go();
 
 
-const drawAndPaint = (exports) => {
-	// Get our canvas element from our index.html
-	const canvasElement = document.querySelector("canvas");
-
-	// Set up Context and ImageData on the canvas
+function draw(worker, canvasname) {
+	const canvasElement = document.getElementById(canvasname);
 	const canvasContext = canvasElement.getContext("2d");
 	const canvasImageData = canvasContext.createImageData(
 		canvasElement.width,
 		canvasElement.height
 	);
-
-	// Clear the canvas
 	canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
+	worker.postMessage({
+		action: "draw",
+		payload: canvasImageData
+	});
+}
 
-	// Generate a new checkboard in wasm
-	exports.draw();
+function resultReady(canvasImageData, canvasname) {
 
-	const memory = exports.mem; // was exports.memory
-	const wasmByteMemoryArray = new Uint8Array(memory.buffer);
+	const canvasElement = document.getElementById(canvasname);
 
-	// Pull out the RGBA values from Wasm memory, the we wrote to in wasm,
-	// starting at the checkerboard pointer (memory array index)
-	const imageDataArray = wasmByteMemoryArray.slice(
-		exports.getGraphicsBufferPointer(),
-		exports.getGraphicsBufferPointer() + exports.getGraphicsBufferSize()
-	);
-
-	console.log(imageDataArray);
-
-	// Set the values to the canvas image data
-	canvasImageData.data.set(imageDataArray);
+	// Set up Context and ImageData on the canvas
+	const canvasContext = canvasElement.getContext("2d");
 
 	// Clear the canvas
 	canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
 	// Place the new generated checkerboard onto the canvas
 	canvasContext.putImageData(canvasImageData, 0, 0);
-};
+}
 
+const GRIDIWDTH = 3;
+const GRIDHEIGHT = 3;
 
 const runWasm = async () => {
-	let mod, inst;
-
-	WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
-		mod = result.module;
-		inst = result.instance;
-		go.run(inst);
-		console.log(mod);
-		console.log(inst);
-
-
-
-		drawAndPaint(inst.exports);
-
-
-	}).catch((err) => {
-		console.error(err);
-	});
+	for (let i = 0; i < (GRIDIWDTH * GRIDHEIGHT); i++) {
+		const canvasname = "canvas" + i;
+		const worker = new Worker("worker.js");
+		worker.onmessage = ({ data }) => {
+			let { action, payload } = data;
+			switch (action) {
+				case "log":
+					console.log(`worker.log: ${payload}`);
+					break;
+				case "ready":
+					draw(worker, canvasname);
+					break;
+				case "result":
+					resultReady(payload, canvasname);
+					break;
+				default:
+					console.error(`Unknown action: ${action}`);
+			}
+		};
+	};
 }
 
 document.addEventListener('DOMContentLoaded', function() {
