@@ -9,11 +9,8 @@ const BUFFER_WIDTH int = 256;
 const BUFFER_HEIGHT int = 256;
 const BUFFER_SIZE int = BUFFER_WIDTH * BUFFER_HEIGHT * 4;
 
-const FRACT_WIDTH = 3.0;
-const FRACT_HEIGHT = 3.0;
 const ITERATIONS = 256;
 
-const XOFFSET = -0.5;
 
 var graphicsBuffer [BUFFER_SIZE]uint8;
 
@@ -58,19 +55,17 @@ func generatePlasmaPalette(size int) [][]uint8 {
 }
 
 //go:wasmexport draw
-func draw(xoffset, yoffset, xtiles, ytiles int32) {
+func draw(xoffset, yoffset, xstep, ystep float64 ) {
 	palette := generatePlasmaPalette(16);
 
-	for y := 0; y < BUFFER_HEIGHT; y++ {
-		for x := 0; x < BUFFER_WIDTH; x++ {
+	for y := range BUFFER_HEIGHT {
+		for x := range BUFFER_WIDTH {
 
-			xstep := FRACT_WIDTH / float64(BUFFER_WIDTH * int(xtiles));
-			ystep := FRACT_HEIGHT / float64(BUFFER_HEIGHT * int(ytiles));
-
-			xpos := XOFFSET + float64(x - ((BUFFER_WIDTH * int(xtiles)) / 2) + (int(xoffset) * BUFFER_WIDTH)) * xstep;
-			ypos := float64(y - ((BUFFER_HEIGHT * int(ytiles)) / 2) + (int(yoffset) * BUFFER_HEIGHT)) * ystep;
-
-			res := compute(complex(xpos, ypos))
+			coord := complex(
+				xoffset + (xstep * float64(x)),
+				yoffset + (ystep * float64(y)),
+			);
+			res := compute(coord);
 
 			pixel := ((y * BUFFER_WIDTH) + x) * 4;
 

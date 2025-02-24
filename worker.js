@@ -14,12 +14,26 @@ WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(
 	});
 
 
-const GRIDIWDTH = 4;
-const GRIDHEIGHT = 3;
+const GRID_WIDTH = 4;
+const GRID_HEIGHT = 3;
+const BUFFER_WIDTH = 256;
+const BUFFER_HEIGHT = 256;
+
+const FRACT_WIDTH = 3.0;
+const FRACT_HEIGHT = 3.0;
+
+const XOFFSET = -0.5;
+const YOFFSET = 0.0;
+
+const XSTEP = FRACT_WIDTH / (GRID_WIDTH * BUFFER_WIDTH);
+const YSTEP = FRACT_HEIGHT / (GRID_HEIGHT * BUFFER_HEIGHT);
 
 const drawAndPaint = (x, y, canvasImageData) => {
 
-	exports.draw(x, y, GRIDIWDTH, GRIDHEIGHT);
+	const xoffset = XOFFSET - (FRACT_WIDTH / 2.0) + (x * (FRACT_WIDTH / GRID_WIDTH));
+	const yoffset = YOFFSET - (FRACT_HEIGHT / 2.0) + (y * (FRACT_HEIGHT / GRID_HEIGHT));
+
+	exports.draw(xoffset, yoffset, XSTEP, YSTEP);
 
 	const memory = exports.mem; // was exports.memory
 	const wasmByteMemoryArray = new Uint8Array(memory.buffer);
