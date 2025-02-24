@@ -34,7 +34,7 @@ const GRIDIWDTH = 3;
 const GRIDHEIGHT = 3;
 
 const runWasm = async () => {
-	for (let i = 0; i < (GRIDIWDTH * GRIDHEIGHT); i++) {
+	for (let i = 0; i < 1; i++) {
 		const canvasname = "canvas" + i;
 		const worker = new Worker("worker.js");
 		worker.onmessage = ({ data }) => {

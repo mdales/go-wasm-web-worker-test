@@ -7,15 +7,19 @@ WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(
 		exports = result.instance.exports;
 		go.run(result.instance);
 		console.log("Worker loaded WASM module");
+		// console.log(exports);
 		postMessage({ action: "ready", payload: null });
 	}).catch((err) => {
 		console.error("Worker failed to load WASM module: ", err)
 	});
 
 const drawAndPaint = (canvasImageData) => {
+	console.log(exports);
 
+	console.log("a");
 	// Generate a new checkboard in wasm
 	exports.draw();
+
 
 	const memory = exports.mem; // was exports.memory
 	const wasmByteMemoryArray = new Uint8Array(memory.buffer);
